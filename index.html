@@ -1,0 +1,24 @@
+from flask import Flask, request, render_template
+import pickle
+import pandas as pd
+
+app = Flask(__name__)
+
+model = pickle.load(open("model.pkl", "rb"))
+
+@app.route("/")
+def home():
+    return render_template("index.html")
+
+@app.route("/predict", methods=["POST"])
+def predict():
+    age = float(request.form["age"])
+    bmi = float(request.form["bmi"])
+
+    input_data = pd.DataFrame([[age, bmi]], columns=["age", "bmi"])
+    prediction = model.predict(input_data)
+
+    return render_template("index.html", result=prediction[0])
+
+if __name__ == "__main__":
+    app.run(debug=True)
