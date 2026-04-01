@@ -1,24 +1,110 @@
-from flask import Flask, request, render_template
-import pickle
-import pandas as pd
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Healthcare Cost Predictor</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-app = Flask(__name__)
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600&display=swap" rel="stylesheet">
 
-model = pickle.load(open("model.pkl", "rb"))
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
 
-@app.route("/")
-def home():
-    return render_template("index.html")
+        body {
+            height: 100vh;
+            background: linear-gradient(135deg, #0f172a, #1e293b);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
 
-@app.route("/predict", methods=["POST"])
-def predict():
-    age = float(request.form["age"])
-    bmi = float(request.form["bmi"])
+        .container {
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(15px);
+            padding: 40px;
+            border-radius: 20px;
+            width: 350px;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+        }
 
-    input_data = pd.DataFrame([[age, bmi]], columns=["age", "bmi"])
-    prediction = model.predict(input_data)
+        h1 {
+            margin-bottom: 20px;
+            color: #38bdf8;
+        }
 
-    return render_template("index.html", result=prediction[0])
+        p {
+            font-size: 14px;
+            margin-bottom: 20px;
+            color: #cbd5f5;
+        }
 
-if __name__ == "__main__":
-    app.run(debug=True)
+        input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 10px;
+            border: none;
+            outline: none;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            background: #38bdf8;
+            color: black;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background: #0ea5e9;
+        }
+
+        .result {
+            margin-top: 20px;
+            font-size: 18px;
+            color: #22c55e;
+        }
+
+        .footer {
+            margin-top: 15px;
+            font-size: 12px;
+            color: #94a3b8;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>💊 Cost Predictor</h1>
+    <p>Estimate healthcare expenses using Machine Learning</p>
+
+    <form action="/predict" method="post">
+        <input type="number" name="age" placeholder="Enter Age" required>
+        <input type="number" name="bmi" placeholder="Enter BMI" required>
+        <button type="submit">Predict Cost</button>
+    </form>
+
+    {% if result %}
+        <div class="result">
+            💰 Estimated Cost: ₹ {{ result }}
+        </div>
+    {% endif %}
+
+    <div class="footer">
+        Built with Flask + ML 🚀
+    </div>
+</div>
+
+</body>
+</html>
