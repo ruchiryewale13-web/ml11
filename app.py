@@ -1,29 +1,32 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
+from flask_cors import CORS
 import pickle
 import numpy as np
 
-model = pickle.load(open("model.pkl", "rb"))
-
 app = Flask(__name__)
+CORS(app)
+
+model = pickle.load(open("model.pkl", "rb"))
 
 @app.route("/")
 def home():
-    return "ML Model API is Running!"
+    return """
+    <h2>ML Predictor</h2>
+    <form action="/predict_web" method="post">
+        Age: <input name="age"><br><br>
+        BMI: <input name="bmi"><br><br>
+        <button type="submit">Predict</button>
+    </form>
+    """
 
-@app.route("/predict", methods=["POST"])
-def predict():
-    try:
-        data = request.get_json()
-        age = data["age"]
-        bmi = data["bmi"]
+@app.route("/predict_web", methods=["POST"])
+def predict_web():
+    age = float(request.form["age"])
+    bmi = float(request.form["bmi"])
 
-        input_data = np.array([[age, bmi]])
-        prediction = model.predict(input_data)
+    prediction = model.predict([[age, bmi]])
 
-        return jsonify({"prediction": float(prediction[0])})
-
-    except Exception as e:
-        return jsonify({"error": str(e)})
+    return f"<h3>Prediction: {prediction[0]}</h3>"
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+    app.run(debug=True)
